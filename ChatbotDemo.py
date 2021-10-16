@@ -17,6 +17,7 @@
 # except sr.RequestError as e:  
 #    print("Sphinx error; {0}".format(e))
 
+
 import os
 import time
 import pyttsx3
@@ -28,6 +29,7 @@ import wolframalpha
 import subprocess
 import speech_recognition as sr 
 
+
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 # print(voices[0].id)
@@ -37,6 +39,7 @@ def speak(audio):
     engine.say(audio)
     engine.runAndWait()
     pass
+
 
 def wishMe():
     hour = datetime.datetime.now().hour
