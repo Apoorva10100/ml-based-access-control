@@ -5,13 +5,13 @@ import 'package:projectapp/pages/user.dart';
 
 import '../colors.dart';
 
-class login extends StatefulWidget {
+class Login extends StatefulWidget {
   @override
-  _loginState createState() => _loginState();
+  _LoginState createState() => _LoginState();
 }
 
-class _loginState extends State<login> {
-  var Credentials = [];
+class _LoginState extends State<Login> {
+  var credentials = [];
   final _formKey = GlobalKey<FormState>();
   TextEditingController idController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -19,6 +19,7 @@ class _loginState extends State<login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bg,
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -109,7 +110,7 @@ class _loginState extends State<login> {
       print(passwordController.text);
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => user(),
+          builder: (context) => User(),
         ),
       );
     }
