@@ -3,17 +3,18 @@
 import 'package:flutter/material.dart';
 import 'package:projectapp/colors.dart';
 
-class user extends StatefulWidget {
-  const user({Key? key}) : super(key: key);
+class User extends StatefulWidget {
+  const User({Key? key}) : super(key: key);
 
   @override
-  _userState createState() => _userState();
+  _UserState createState() => _UserState();
 }
 
-class _userState extends State<user> {
+class _UserState extends State<User> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bg,
       body: SafeArea(
           // child: Padding(
         // padding: const EdgeInsets.symmetric(horizontal: ),
