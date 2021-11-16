@@ -53,6 +53,7 @@ class _loginState extends State<login> {
                     }
                   },
                 ),
+                SizedBox(height:15),
                 TextFormField(
                   controller: passwordController,
                   decoration: InputDecoration(
@@ -74,7 +75,7 @@ class _loginState extends State<login> {
                   onPressed: submit,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 70, vertical: 15),
+                        horizontal: 120, vertical: 15),
                     child: Text(
                       'Login',
                       style: TextStyle(
