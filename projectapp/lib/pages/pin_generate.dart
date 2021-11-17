@@ -25,20 +25,15 @@ class _PinGenerationState extends State<PinGeneration> {
       body: Center(
         child: Column(
           children: [
-            const SizedBox(
-              height: 200.0,
-            ),
+            const SizedBox(height: 200.0),
             Text(
               "Your PIN is:",
               style: TextStyle(
                 fontSize: 30,
                 color: textColor,
-                //fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(
-              height: 20.0,
-            ),
+            const SizedBox(height: 20.0),
             Text(
               code.toString(),
               style: TextStyle(

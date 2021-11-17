@@ -29,10 +29,10 @@ class _LoginState extends State<Login> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Welcome Back',
+                  'Welcome',
                   style: TextStyle(
                     letterSpacing: 1,
-                    fontSize: 38,
+                    fontSize: 42,
                     color: textColor,
                     fontWeight: FontWeight.bold,
                   ),
@@ -44,7 +44,7 @@ class _LoginState extends State<Login> {
                     labelText: 'Email/Reference ID',
                     labelStyle: TextStyle(
                       letterSpacing: 1,
-                      fontSize: 16,
+                      fontSize: 18,
                       color: textColor,
                     ),
                   ),
@@ -54,14 +54,14 @@ class _LoginState extends State<Login> {
                     }
                   },
                 ),
-                SizedBox(height:15),
+                SizedBox(height: 15),
                 TextFormField(
                   controller: passwordController,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     labelStyle: TextStyle(
                       letterSpacing: 1,
-                      fontSize: 16,
+                      fontSize: 18,
                       color: textColor,
                     ),
                   ),
@@ -107,23 +107,27 @@ class _LoginState extends State<Login> {
 
   void submit() {
     if (_formKey.currentState!.validate()) {
-      print(idController.text);
-      print(passwordController.text);
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => User(),
-        ),
-      );
+      // print(idController.text);
+      // print(passwordController.text);
+      if (idController.text == "abc" && passwordController.text == "123") {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => User(),
+          ),
+        );
+      } else if (idController.text != "abc") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Incorrect Email/Reference ID"),
+          ),
+        );
+      } else if (passwordController.text != "123") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Incorrect Password"),
+          ),
+        );
+      }
     }
-
-    // final FormState formState = _formKey.currentState;
-    // _formKey.currentState.save();
-    // if (formState.validate()) {
-    //   Navigator.of(context).push(
-    //     MaterialPageRoute(
-    //       builder: (context) => user(),
-    //     ),
-    //   );
-    // }
   }
 }
