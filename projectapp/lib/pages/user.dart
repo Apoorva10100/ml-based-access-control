@@ -1,8 +1,11 @@
 // ignore_for_file: prefer_const_constructors, non_constant_identifier_names, prefer_const_literals_to_create_immutables, use_key_in_widget_constructors
 
+import 'dart:convert';
+import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:projectapp/colors.dart';
 import 'package:projectapp/pages/pin_generate.dart';
+import 'package:http/http.dart' as http;
 
 class User extends StatefulWidget {
   // ignore: prefer_typing_uninitialized_variables
@@ -14,6 +17,63 @@ class User extends StatefulWidget {
 }
 
 class _UserState extends State<User> {
+  List loc = [];
+  String ldt = "";
+  @override
+  void initState() {
+    // ignore: todo
+    // TODO: implement initState
+    loc.clear();
+    _getAccessed(widget.user['user']['Email']);
+    super.initState();
+  }
+
+  Future<void> _getAccessed(String email) async {
+    List temp = [];
+    final Uri apiUrl = Uri.parse("http://192.168.0.104:3000/user/getloc");
+    var response = await http.post(apiUrl,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'Email': email,
+        }));
+
+    var s = response.body.split("\"");
+    for (var i = 0; i < s.length; i++) {
+      if (s[i].contains(',') || s[i].contains('[') || s[i].contains(']')) {
+        continue;
+      } else if (temp.contains(s[i])) {
+        continue;
+      } else {
+        temp.add(s[i]);
+      }
+    }
+    setState(() {
+      loc = temp;
+    });
+  }
+
+  Future<String> _lastDate(String email, String pl) async {
+    String temp = "http://192.168.0.104:3000/user/getAccessed/" + pl;
+    // ignore: avoid_print
+    final Uri apiUrl = Uri.parse(temp);
+    var response = await http.post(apiUrl,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'Email': email,
+        }));
+
+    final List responseData = json.decode(response.body);
+    // ignore: avoid_print
+    setState(() {
+      ldt = responseData[responseData.length - 1]["dateandtime"];
+    });
+    return ldt.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,19 +99,21 @@ class _UserState extends State<User> {
                     ),
                     IconButton(
                       icon: Icon(Icons.account_circle_rounded, size: 38),
-                      onPressed: () {
-                        // ignore: avoid_print
-                        print(widget.user['user']['Email']);
+                      onPressed: () async {
+                        _lastDate(widget.user['user']['Email'], "serv");
                       },
                     )
                   ],
                 ),
               ),
               SizedBox(height: 30),
-              AreaWidget("MedBay", "16-11-2021", "10:55 am"),
-              AreaWidget("Security", "20-12-2021", "11:55 pm"),
-              AreaWidget("Storage", "01-05-2021", "01:50 am"),
-              AreaWidget("Weapons", "12-11-2021", "03:05 pm"),
+              for (int i = 0; i < loc.length; i++)
+                AreaWidget(loc[i], "123", "abc"),
+
+              //   AreaWidget(loc[pos], "16-11-2021", "10:55 am"),
+              // AreaWidget("Security", "20-12-2021", "11:55 pm"),
+              // AreaWidget("Storage", "01-05-2021", "01:50 am"),
+              // AreaWidget("Weapons", "12-11-2021", "03:05 pm"),
             ],
           ),
         ),
@@ -98,7 +160,7 @@ class _UserState extends State<User> {
                   ),
                 ),
                 SizedBox(height: 10),
-                DateTime(curDate, curTime),
+                DateAndTime(curDate, curTime),
               ],
             )
           ],
@@ -112,7 +174,7 @@ class _UserState extends State<User> {
     );
   }
 
-  Widget DateTime(String Date, String Time) {
+  Widget DateAndTime(String date, String time) {
     return Row(
       children: [
         Column(
@@ -141,7 +203,7 @@ class _UserState extends State<User> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              Date,
+              date,
               style: TextStyle(
                 letterSpacing: 1,
                 fontSize: 16,
@@ -149,7 +211,7 @@ class _UserState extends State<User> {
               ),
             ),
             Text(
-              Time,
+              time,
               style: TextStyle(
                 letterSpacing: 1,
                 fontSize: 16,
@@ -165,7 +227,7 @@ class _UserState extends State<User> {
   Widget OtherDateTime() {
     return Padding(
       padding: const EdgeInsets.only(left: 88, top: 10),
-      child: DateTime("14-11-2021", "10:55 am"),
+      child: DateAndTime("14-11-2021", "10:55 am"),
     );
   }
 }

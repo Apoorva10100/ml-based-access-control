@@ -16,6 +16,7 @@ class _LoginState extends State<Login> {
   TextEditingController idController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+  // ignore: prefer_typing_uninitialized_variables
   var responseData;
 
   Future<Map<String, dynamic>?> login(String id, String password) async {
