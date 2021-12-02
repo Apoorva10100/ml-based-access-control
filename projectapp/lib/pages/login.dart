@@ -1,8 +1,10 @@
 // ignore_for_file: camel_case_types, file_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, use_key_in_widget_constructors, avoid_print
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:projectapp/pages/user.dart';
-
+import 'package:http/http.dart' as http;
 import '../colors.dart';
 
 class Login extends StatefulWidget {
@@ -11,10 +13,24 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  var credentials = [];
-  final _formKey = GlobalKey<FormState>();
   TextEditingController idController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+
+  Future<http.Response> login(String id, String password) {
+    return http.post(
+      Uri.parse('http://localhost:3000/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'Email': id,
+        'Password': password
+      }),
+    );
+  }
+
+  var credentials = [];
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +123,9 @@ class _LoginState extends State<Login> {
 
   void submit() {
     if (_formKey.currentState!.validate()) {
+      var l = login(idController.text,passwordController.text);
+      print("*******************************");
+      print(l);
       if (idController.text == "abc" && passwordController.text == "123") {
         Navigator.of(context).push(
           MaterialPageRoute(
@@ -129,4 +148,3 @@ class _LoginState extends State<Login> {
     }
   }
 }
-
