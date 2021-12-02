@@ -43,33 +43,34 @@ class _UserState extends State<User> {
                 ),
               ),
               SizedBox(height: 30),
-              AreaWidget("MedBay","16-11-2021","10:55 am"),
-              AreaWidget("Security","20-12-2021","11:55 pm"),
-              AreaWidget("Storage","01-05-2021","01:50 am"),
-              AreaWidget("Weapons","12-11-2021","03:05 pm"),
+              AreaWidget("MedBay", "16-11-2021", "10:55 am"),
+              AreaWidget("Security", "20-12-2021", "11:55 pm"),
+              AreaWidget("Storage", "01-05-2021", "01:50 am"),
+              AreaWidget("Weapons", "12-11-2021", "03:05 pm"),
             ],
           ),
         ),
       ),
+
+      
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: textColor,
         label: Row(
           children: const [
             Icon(Icons.pin_rounded),
-            SizedBox(
-              width: 6,
-            ),
+            SizedBox(width: 6),
             Text('PIN'),
           ],
         ),
         onPressed: () {
           Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => PinGeneration(),
-            ),
+            MaterialPageRoute(builder: (context) => PinGeneration()),
           );
         },
       ),
+
+
+
     );
   }
 
@@ -164,8 +165,7 @@ class _UserState extends State<User> {
   Widget OtherDateTime() {
     return Padding(
       padding: const EdgeInsets.only(left: 88, top: 10),
-      child: DateTime("14-11-2021","10:55 am"),
+      child: DateTime("14-11-2021", "10:55 am"),
     );
   }
 }
-

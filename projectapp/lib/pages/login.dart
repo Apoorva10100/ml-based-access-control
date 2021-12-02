@@ -107,8 +107,6 @@ class _LoginState extends State<Login> {
 
   void submit() {
     if (_formKey.currentState!.validate()) {
-      // print(idController.text);
-      // print(passwordController.text);
       if (idController.text == "abc" && passwordController.text == "123") {
         Navigator.of(context).push(
           MaterialPageRoute(
@@ -131,3 +129,4 @@ class _LoginState extends State<Login> {
     }
   }
 }
+
