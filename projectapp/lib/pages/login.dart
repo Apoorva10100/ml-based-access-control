@@ -16,17 +16,28 @@ class _LoginState extends State<Login> {
   TextEditingController idController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  Future<http.Response> login(String id, String password) {
-    return http.post(
-      Uri.parse('http://localhost:3000/login'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'Email': id,
-        'Password': password
-      }),
-    );
+  var responseData;
+
+  Future<Map<String, dynamic>?> login(String id, String password) async {
+    final Uri apiUrl = Uri.parse("http://192.168.0.104:3000/login");
+    try {
+      final http.Response response = await http.post(
+        apiUrl,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'Email': id,
+          'Password': password,
+        }),
+      );
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      print(responseData['message']);
+      return responseData;
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
   var credentials = [];
@@ -89,7 +100,9 @@ class _LoginState extends State<Login> {
                 ),
                 SizedBox(height: 60),
                 ElevatedButton(
-                  onPressed: submit,
+                  onPressed: () async {
+                    submit();
+                  },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 120, vertical: 15),
@@ -121,24 +134,22 @@ class _LoginState extends State<Login> {
     );
   }
 
-  void submit() {
+  Future<void> submit() async {
     if (_formKey.currentState!.validate()) {
-      var l = login(idController.text,passwordController.text);
-      print("*******************************");
-      print(l);
-      if (idController.text == "abc" && passwordController.text == "123") {
+      var response = await login(idController.text, passwordController.text);
+      if (response!["message"] == "Login Successful") {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => User(),
+            builder: (context) => User(response),
           ),
         );
-      } else if (idController.text != "abc") {
+      } else if (response["message"].endsWith("not found.")) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Incorrect Email/Reference ID"),
           ),
         );
-      } else if (passwordController.text != "123") {
+      } else if (response["message"] == "wrong password") {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Incorrect Password"),

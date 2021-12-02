@@ -1,11 +1,13 @@
-// ignore_for_file: prefer_const_constructors, non_constant_identifier_names, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, non_constant_identifier_names, prefer_const_literals_to_create_immutables, use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
 import 'package:projectapp/colors.dart';
 import 'package:projectapp/pages/pin_generate.dart';
 
 class User extends StatefulWidget {
-  const User({Key? key}) : super(key: key);
+  // ignore: prefer_typing_uninitialized_variables
+  final user;
+  const User(this.user);
 
   @override
   _UserState createState() => _UserState();
@@ -35,9 +37,12 @@ class _UserState extends State<User> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Icon(
-                      Icons.account_circle_rounded,
-                      size: 38,
+                    IconButton(
+                      icon: Icon(Icons.account_circle_rounded, size: 38),
+                      onPressed: () {
+                        // ignore: avoid_print
+                        print(widget.user['user']['Email']);
+                      },
                     )
                   ],
                 ),
@@ -51,8 +56,6 @@ class _UserState extends State<User> {
           ),
         ),
       ),
-
-      
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: textColor,
         label: Row(
@@ -68,9 +71,6 @@ class _UserState extends State<User> {
           );
         },
       ),
-
-
-
     );
   }
 
