@@ -1,7 +1,6 @@
-// ignore_for_file: camel_case_types, file_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, use_key_in_widget_constructors, avoid_print
+// ignore_for_file: use_key_in_widget_constructors, avoid_print, prefer_const_constructors
 
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:projectapp/pages/user.dart';
 import 'package:http/http.dart' as http;
@@ -16,11 +15,8 @@ class _LoginState extends State<Login> {
   TextEditingController idController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  // ignore: prefer_typing_uninitialized_variables
-  var responseData;
-
   Future<Map<String, dynamic>?> login(String id, String password) async {
-    final Uri apiUrl = Uri.parse("http://192.168.0.104:3000/login");
+    final Uri apiUrl = Uri.parse("http://192.168.18.243:3000/login");
     try {
       final http.Response response = await http.post(
         apiUrl,
