@@ -129,7 +129,9 @@ class _UserState extends State<User> {
         ),
         onPressed: () {
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => PinGeneration()),
+            MaterialPageRoute(
+                builder: (context) =>
+                    PinGeneration(widget.user['user']['Email'])),
           );
         },
       ),

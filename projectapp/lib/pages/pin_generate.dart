@@ -1,9 +1,13 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:projectapp/colors.dart';
+import 'package:http/http.dart' as http;
 
 class PinGeneration extends StatefulWidget {
-  const PinGeneration({Key? key}) : super(key: key);
+  final email;
+  // ignore: use_key_in_widget_constructors
+  const PinGeneration(this.email);
 
   @override
   _PinGenerationState createState() => _PinGenerationState();
@@ -11,7 +15,33 @@ class PinGeneration extends StatefulWidget {
 
 class _PinGenerationState extends State<PinGeneration> {
   var code = "";
+  String dropdownValue = '4';
   var rng = Random();
+
+  Future<void> storePin(String pin) async {
+    final Uri apiUrl = Uri.parse("http://192.168.0.104:3000/user/saveotp");
+    try {
+      final http.Response response = await http.patch(
+        apiUrl,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{'Email': widget.email, 'Otp': pin}),
+      );
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      print(responseData);
+      if (response.statusCode != 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Try again."),
+          ),
+        );
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   void initState() {
     getPin();
@@ -65,8 +95,7 @@ class _PinGenerationState extends State<PinGeneration> {
         pin = pin + rng.nextInt(9).toString();
       }
       code = pin;
+      storePin(code);
     });
   }
 }
-
-
