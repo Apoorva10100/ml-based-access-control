@@ -18,10 +18,13 @@ class User extends StatefulWidget {
 class _UserState extends State<User> {
   final user;
   _UserState(this.user);
+
   List responseData = [];
   List locations = [];
   List date = [];
   List time = [];
+  late String curDate;
+  late String curTime;
 
   Future<List> _getLocations(String email) async {
     final Uri apiUrl = Uri.parse("http://192.168.18.243:3000/user/getloc");
@@ -36,13 +39,11 @@ class _UserState extends State<User> {
     );
     responseData = json.decode(response.body);
     locations = responseData.toSet().toList();
-    return locations;
   }
 
   @override
   void initState() {
-    _getLocations(user['user']['Email']);
-
+    // _getLocations(user['user']['Email']);
     super.initState();
   }
 
@@ -58,10 +59,35 @@ class _UserState extends State<User> {
         }));
 
     final List responseData = json.decode(response.body);
+    curDate =
+        responseData[responseData.length - 1]['dateandtime'].split(' ')[0];
+    curTime =
+        responseData[responseData.length - 1]['dateandtime'].split(' ')[1];
+    return responseData;
+  }
+
+  Future<List> _Date1(String email, String loc) async {
+    String temp = "http://192.168.18.243:3000/user/getAccessed/" + loc;
+    final Uri apiUrl = Uri.parse(temp);
+    var response = await http.post(apiUrl,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'Email': email,
+        }));
+
+    date = [];
+    time = [];
+    final List responseData = json.decode(response.body);
     for (int i = 0; i < responseData.length; i++) {
       date.add(responseData[i]['dateandtime'].split(' ')[0]);
       time.add(responseData[i]['dateandtime'].split(' ')[1]);
     }
+    print("First***********************");
+    print(loc);
+    print(date[(date.length - 1)]);
+    print(time[(time.length - 1)]);
     return responseData;
   }
 
@@ -210,7 +236,7 @@ class _UserState extends State<User> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    date[(date.length - 1)],
+                    curDate,
                     style: TextStyle(
                       letterSpacing: 1,
                       fontSize: 16,
@@ -218,7 +244,7 @@ class _UserState extends State<User> {
                     ),
                   ),
                   Text(
-                    time[(time.length - 1)],
+                    curTime,
                     style: TextStyle(
                       letterSpacing: 1,
                       fontSize: 16,
@@ -238,7 +264,7 @@ class _UserState extends State<User> {
 
   Widget OtherDateTime(String location) {
     return FutureBuilder(
-      future: _Date(user['user']['Email'], location),
+      future: _Date1(user['user']['Email'], location),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           // List reversedDate = List.from(date.reversed);
