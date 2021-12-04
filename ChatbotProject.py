@@ -23,6 +23,7 @@ import time
 import pyttsx3
 import datetime
 import pyaudio
+import requests
 import wikipedia
 import webbrowser
 import wolframalpha
@@ -34,7 +35,7 @@ engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 # print(voices[0].id)
 engine.setProperty('voice', voices[0].id) #male voice
-#engine.setProperty('voice', voices[1].id) female voice
+#engine.setProperty('voice', voices[1].id) #female voice
 def speak(audio):
     engine.say(audio)
     engine.runAndWait()
@@ -76,8 +77,23 @@ def tackCommand():
 
 
 
+def getUserDetails(email):
+    print(email)
+
+
 
 def StartBot():
+    name =["bhoomika","apoorva","bhumika"]
+    Questions = ["What is your email id?", "What is your name?","What is your Employee ID","What is the name of the project you are currently woking on", "Now Name your Supervisor", "What is the role you are assigned to"]
+    Request = ["Requesting Name","Requesting Employee ID","Requesting Email ID", "Requesting Project Name","Requesting Supervisor Name", "Requesting the assigned Role"]
+    OTP = "Enter your OTP"
+
+
+    for i in range(len(Questions)):
+        speak(Questions[i])
+        print(Questions[i])
+
+
     speak("What is your name")
     print("Requesting Name..")
     query_name = tackCommand().lower()
@@ -88,7 +104,7 @@ def StartBot():
 
         speak("Enter PIN")
         print("Requesting PIN..")
-
+ 
         query_PIN = tackCommand().lower()
 
         if(query_PIN == "123"):
@@ -112,7 +128,7 @@ def StartBot():
 
 
 if __name__ == "__main__":
-    name =["bhoomika","apoorva","bhumika"]
+    
     wishMe()
     StartBot()
 
