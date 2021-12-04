@@ -39,6 +39,7 @@ class _UserState extends State<User> {
     );
     responseData = json.decode(response.body);
     locations = responseData.toSet().toList();
+    return locations;
   }
 
   @override
