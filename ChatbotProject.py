@@ -1,20 +1,20 @@
-# import speech_recognition as sr  
-   
-#  # obtain audio from the microphone  
-# r = sr.Recognizer()  
-# with sr.Microphone() as source:  
-#    print("Please wait. Calibrating microphone...")  
-#    # listen for 5 seconds and create the ambient noise energy level  
-#    r.adjust_for_ambient_noise(source, duration=5)  
-#    print("Say something!")  
-#    audio = r.listen(source)  
-   
-#  # recognize speech using Sphinx  
-# try:  
-#    print("Sphinx thinks you said '" + r.recognize_sphinx(audio) + "'")  
-# except sr.UnknownValueError:  
-#    print("Sphinx could not understand audio")  
-# except sr.RequestError as e:  
+# import speech_recognition as sr
+
+#  # obtain audio from the microphone
+# r = sr.Recognizer()
+# with sr.Microphone() as source:
+#    print("Please wait. Calibrating microphone...")
+#    # listen for 5 seconds and create the ambient noise energy level
+#    r.adjust_for_ambient_noise(source, duration=5)
+#    print("Say something!")
+#    audio = r.listen(source)
+
+#  # recognize speech using Sphinx
+# try:
+#    print("Sphinx thinks you said '" + r.recognize_sphinx(audio) + "'")
+# except sr.UnknownValueError:
+#    print("Sphinx could not understand audio")
+# except sr.RequestError as e:
 #    print("Sphinx error; {0}".format(e))
 
 
@@ -28,18 +28,64 @@ import wikipedia
 import webbrowser
 import wolframalpha
 import subprocess
-import speech_recognition as sr 
+import sys
+import speech_recognition as sr
 
 
+name = ["bhoomika", "apoorva", "bhumika"]
+Questions = ["What is your name?", "What is your Employee ID", "What is the name of the project you are currently woking on",
+             "Whatis the Name your Supervisor", "What is the role you are assigned to"]
+Request = ["Requesting Name", "Requesting Employee ID", "Requesting Project Name",
+           "Requesting Supervisor Name", "Requesting the assigned Role"]
+UserAnswers = []
+DataAnswers = []
+# OTP = "Enter your OTP"
+name = ''
+ID = ''
+project_name = ''
+supervisor = ''
+role = ''
+email = ''
+
+
+r = requests.get("http://localhost:3000/user/getall")
+print(r.text)
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 # print(voices[0].id)
-engine.setProperty('voice', voices[0].id) #male voice
-#engine.setProperty('voice', voices[1].id) #female voice
+# engine.setProperty('voice', voices[0].id)  # male voice
+engine.setProperty('voice', voices[1].id) #female voice
+
+
 def speak(audio):
     engine.say(audio)
     engine.runAndWait()
     pass
+
+# function for taking command from user
+
+
+def tackCommand():
+    flag = 0
+    r = sr.Recognizer()
+    # with sr.Microphone(device_index=2) as source:
+    with sr.Microphone() as source:
+        # print("Listening...")
+        r.adjust_for_ambient_noise(source, duration=0.5)
+        # r.pause_threshold = 1
+        # print("Listening...")
+        audio = r.listen(source, phrase_time_limit=4)
+    try:
+        print("Recognizing...")
+        query = r.recognize_google(audio, language='en-us')
+        print(f"User said: {query}\n")
+    except Exception as e:
+        flag = 1
+        print(e)
+        speak("please say that again")
+        print("please say that again")
+        return "None", flag
+    return query, flag
 
 
 def wishMe():
@@ -55,83 +101,73 @@ def wishMe():
         print("Hello, Good Evening.")
 
 
-#function for taking command from user
-def tackCommand():
-    r = sr.Recognizer()    
-    with sr.Microphone() as source:
-        #print("Listening...")
-        r.adjust_for_ambient_noise(source, duration=0.5)
-        #r.pause_threshold = 1
-        #print("Listening...")
-        audio = r.listen(source)
-    try:
-        print("Recognizing...")
-        query = r.recognize_google(audio, language = 'en-in')
-        print(f"User said: {query}\n")
-    except Exception as e:
-        print(e)
-        # speak("please say that again")
-        print("please say that again")
-        return "None"
-    return query
+def StartBot():
+    getEmail()
 
+    
+
+def UserQuest():
+    for i in range(len(Questions)):
+        query, flag = quest(i)
+        while (flag == 1):
+            query, flag = quest(i)
+        if(query.lower()!=DataAnswers[i].lower()):
+            speak("Can you repeat")
+            query, flag = quest(i)
+        while (flag == 1):
+            query, flag = quest(i)
+        
+            
+        UserAnswers.append(query.lower())
+        # speak("Got it!")
+        # print("Got it")
+    print(UserAnswers)
+    print(DataAnswers)
+    count=0
+    for i in range(len(DataAnswers)):
+        if DataAnswers[i].lower() == UserAnswers[i].lower():
+            count=count + 1
+    print(count)
+    print(count/len(DataAnswers)*100)
+
+
+
+
+def getEmail():
+    speak("What is your Email ID")
+    print("Requesting Email ID")
+    mail, flag = tackCommand()
+    while (flag == 1):
+        getEmail()
+    mail = mail.lower().replace(' at ', '@')
+    print(mail)
+    getUserDetails(mail)
 
 
 def getUserDetails(email):
-    print(email)
+    try:
+        data = {'Email': email}
+        response = requests.post("http://localhost:3000/user/get", json=data)
+        print(response.json()['Employee_Name'])
+        DataAnswers.append(response.json()['Employee_Name'].lower())
+        DataAnswers.append(response.json()['Employee_ID'].lower())
+        DataAnswers.append(response.json()['Project_Name'].lower())
+        DataAnswers.append(response.json()['Supervisor_Name'].lower())
+        DataAnswers.append(response.json()['Role'].lower())
+        UserQuest()
+        
+    except:
+        speak("Please try again.")
+        getEmail()
 
 
-
-def StartBot():
-    name =["bhoomika","apoorva","bhumika"]
-    Questions = ["What is your email id?", "What is your name?","What is your Employee ID","What is the name of the project you are currently woking on", "Now Name your Supervisor", "What is the role you are assigned to"]
-    Request = ["Requesting Name","Requesting Employee ID","Requesting Email ID", "Requesting Project Name","Requesting Supervisor Name", "Requesting the assigned Role"]
-    OTP = "Enter your OTP"
-
-
-    for i in range(len(Questions)):
-        speak(Questions[i])
-        print(Questions[i])
-
-
-    speak("What is your name")
-    print("Requesting Name..")
-    query_name = tackCommand().lower()
-    
-    if query_name in name:
-        speak("Welcome"+query_name)
-        print("User found in Database")
-
-        speak("Enter PIN")
-        print("Requesting PIN..")
- 
-        query_PIN = tackCommand().lower()
-
-        if(query_PIN == "123"):
-            speak("Access Granted!!")
-            print("Access Granted")
-        else:
-            speak("Incorrect PIN, Access Denied")
-            print("Acess Denied")
-
-
-
-    else:
-        speak("Sorry!! Could not recognize you!!")
-        print("Sorry!! Could not recognize you!!")
-        StartBot()
-
-   
-
-
-
+def quest(i):
+    speak(Questions[i])
+    print(Request[i])
+    query, flag = tackCommand()
+    return query, flag
 
 
 if __name__ == "__main__":
-    
     wishMe()
     StartBot()
-
-    
-
-    
