@@ -39,13 +39,14 @@ Request = ["Requesting Name", "Requesting Employee ID", "Requesting Project Name
            "Requesting Supervisor Name", "Requesting the assigned Role"]
 UserAnswers = []
 DataAnswers = []
-# OTP = "Enter your OTP"
+
 name = ''
 ID = ''
 project_name = ''
 supervisor = ''
 role = ''
 email = ''
+otp = ''
 
 
 r = requests.get("http://localhost:3000/user/getall")
@@ -141,7 +142,30 @@ def getEmail():
         getEmail()
     mail = mail.lower().replace(' at ', '@')
     print(mail)
+    getOTP(mail)
+
+def getOTP(mail):
+    speak("What is the OTP")
+    print("Requesting OTP")
+    otp1, flag = tackCommand()
+    while (flag == 1):
+        getOTP(mail)
+    if(otp1!=otp):
+        speak("OTP is incorrect")
+        speak("Refresh and reenter OTP")
+        print("Requesting OTP")
+        otp1, flag = tackCommand()
+        while (flag == 1):
+            getOTP(mail)
+    if(otp1==otp):
+        speak("OTP Accepted")
+        print("OTP Success!!")        
+
+    
+
     getUserDetails(mail)
+
+
 
 
 def getUserDetails(email):
@@ -154,6 +178,7 @@ def getUserDetails(email):
         DataAnswers.append(response.json()['Project_Name'].lower())
         DataAnswers.append(response.json()['Supervisor_Name'].lower())
         DataAnswers.append(response.json()['Role'].lower())
+        otp = response.json()['otp']
         UserQuest()
         
     except:
