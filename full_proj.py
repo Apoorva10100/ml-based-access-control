@@ -13,7 +13,6 @@ import subprocess
 import sys
 import speech_recognition as sr
 
-rec = []
 name = ["bhoomika", "apoorva", "bhumika"]
 Questions = ["What is your name?", "What is your Employee ID", "What is the name of the project you are currently woking on",
              "Whatis the Name your Supervisor", "What is the role you are assigned to"]
@@ -21,6 +20,7 @@ Request = ["Requesting Name", "Requesting Employee ID", "Requesting Project Name
            "Requesting Supervisor Name", "Requesting the assigned Role"]
 UserAnswers = []
 DataAnswers = []
+allofit = []
 headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0",
            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
            "Accept-Language": "en-US,en;q=0.9"
@@ -38,6 +38,7 @@ voices = engine.getProperty('voices')
 # print(voices[0].id)
 # engine.setProperty('voice', voices[0].id)  # male voice
 engine.setProperty('voice', voices[1].id) #female voice
+
 
 
 def speak(audio):
@@ -110,8 +111,8 @@ def UserQuest():
     for i in range(len(DataAnswers)):
         if DataAnswers[i].lower() == UserAnswers[i].lower():
             count=count + 1
-    print(count)
-    print(count/len(DataAnswers)*100)
+    if(count/len(DataAnswers)*100 > 60):
+        allofit.append(True)
 
 
 
@@ -120,12 +121,16 @@ def getEmail():
     speak("What is your Email ID")
     print("Requesting Email ID")
     mail, flag = tackCommand()
-    while (flag == 1):
-        getEmail()
     mail = mail.lower().replace(' at ', '@')
     print(mail)
-    getUserDetails(mail)
-    recognize_face(mail)
+    data = {'Email': mail}
+    response = requests.post("http://localhost:3000/user/get", json=data)
+    print(response.status_code)
+    if (response.status_code == 404):
+        getEmail()
+    else:
+        getUserDetails(mail)
+        recognize_face(mail)
     # getOTP(mail)
 
 def getOTP(mail):
@@ -180,10 +185,19 @@ def quest(i):
     return query, flag
 
 def recognize_face(mail):
-    downloaded_obj = requests.get(k_image, headers=headers).content
+    speak("Face recognition in progress......")
+    print("Face recognition in progress......")
+    body = {
+        "Email": mail
+    }
+    rec=[]
+    url = "http://192.168.0.104:3000/user/getimages/"
+    response = requests.post(url, json=body)
+    k_images = response.json()
+    downloaded_obj = requests.get(k_images, headers=headers).content
     with open("known_image.png", "wb") as file:
         file.write(downloaded_obj)
-    known_image = face_recognition
+    known_image = face_recognition.load_image_file("known_image.png")
     for i in range(0,6):
         try:
             unknown_image1 = face_recognition.load_image_file("C:/out/"+str(i)+".bmp")
@@ -193,7 +207,12 @@ def recognize_face(mail):
             rec.append(results[0])
         except:
             rec.append(False)
-    print(rec)
+    c = 0
+    for i in rec:
+        if i == True:
+            c += 1
+    if (c/len(rec)) >= 0.6:
+        allofit.append(True)
 
 
 if __name__ == "__main__":
