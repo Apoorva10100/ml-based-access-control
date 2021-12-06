@@ -107,7 +107,7 @@ def StartBot():
 
     
 
-def UserQuest():
+def UserQuest(email):
     for i in range(len(Questions)):
         query, flag = quest(i)
         while (flag == 1):
@@ -131,6 +131,8 @@ def UserQuest():
     print(count)
     print(count/len(DataAnswers)*100)
 
+    getOTP(email)
+
 
 
 
@@ -142,28 +144,35 @@ def getEmail():
         getEmail()
     mail = mail.lower().replace(' at ', '@')
     print(mail)
-    getOTP(mail)
+    getUserDetails(mail)
 
-def getOTP(mail):
+def getOTP(email):
     speak("What is the OTP")
     print("Requesting OTP")
     otp1, flag = tackCommand()
+    otp = getOTPdetails(email)
     while (flag == 1):
-        getOTP(mail)
+        getOTP()
     if(otp1!=otp):
+        print("otp: ",otp,"otp1: ",otp1)
         speak("OTP is incorrect")
-        speak("Refresh and reenter OTP")
+        speak("Refresh and reenter OTP or Try same OTP again")
+        speak("What is the OTP")
         print("Requesting OTP")
         otp1, flag = tackCommand()
+        otp = getOTPdetails(email)
         while (flag == 1):
-            getOTP(mail)
+            getOTP()
     if(otp1==otp):
         speak("OTP Accepted")
-        print("OTP Success!!")        
+        print("OTP Success!!")  
+    else:
+        speak("OTP Incorrect")
+        print("Access denied")    
 
     
 
-    getUserDetails(mail)
+    
 
 
 
@@ -179,11 +188,18 @@ def getUserDetails(email):
         DataAnswers.append(response.json()['Supervisor_Name'].lower())
         DataAnswers.append(response.json()['Role'].lower())
         otp = response.json()['otp']
-        UserQuest()
+        UserQuest(email)
         
     except:
         speak("Please try again.")
         getEmail()
+
+def getOTPdetails(mail):
+    data = {'Email': mail}
+    response = requests.post("http://localhost:3000/user/get", json=data)
+    otp = response.json()['otp']
+    return otp
+
 
 
 def quest(i):

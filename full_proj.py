@@ -213,6 +213,40 @@ def recognize_face(mail):
             c += 1
     if (c/len(rec)) >= 0.6:
         allofit.append(True)
+    getOTP(mail)
+
+def getOTP(email):
+    speak("What is the OTP")
+    print("Requesting OTP")
+    otp1, flag = tackCommand()
+    otp = getOTPdetails(email)
+    while (flag == 1):
+        getOTP()
+    if(otp1!=otp):
+        print("otp: ",otp,"otp1: ",otp1)
+        speak("OTP is incorrect")
+        speak("Refresh and reenter OTP or Try same OTP again")
+        speak("What is the OTP")
+        print("Requesting OTP")
+        otp1, flag = tackCommand()
+        otp = getOTPdetails(email)
+        while (flag == 1):
+            getOTP()
+    if(otp1==otp):
+        speak("OTP Accepted")
+        print("OTP Success!!") 
+        allofit.append(True)
+    else:
+        speak("OTP Incorrect")
+     
+
+    
+
+def getOTPdetails(mail):
+    data = {'Email': mail}
+    response = requests.post("http://localhost:3000/user/get", json=data)
+    otp = response.json()['otp']
+    return otp
 
 
 if __name__ == "__main__":
