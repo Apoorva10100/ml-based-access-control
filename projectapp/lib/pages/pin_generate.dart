@@ -19,7 +19,7 @@ class _PinGenerationState extends State<PinGeneration> {
   var rng = Random();
 
   Future<void> storePin(String pin) async {
-    final Uri apiUrl = Uri.parse("http://192.168.0.104:3000/user/saveotp");
+    final Uri apiUrl = Uri.parse("http://192.168.18.243:3000/user/saveotp");
     try {
       final http.Response response = await http.patch(
         apiUrl,
