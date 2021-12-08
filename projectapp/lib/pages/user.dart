@@ -68,7 +68,7 @@ class _UserState extends State<User> {
   }
 
   Future<List> _Date1(String email, String loc) async {
-    String temp = "http://192.168.18.243:3000/user/getAccessed/" + loc;
+    String temp = "http://192.168.0.104:3000/user/getAccessed/" + loc;
     final Uri apiUrl = Uri.parse(temp);
     var response = await http.post(apiUrl,
         headers: <String, String>{

@@ -1,19 +1,13 @@
 import face_recognition
 import requests
-import os
 import time
 import pyttsx3
+import serial
 import datetime
-import pyaudio
 import requests
-import wikipedia
-import webbrowser
-import wolframalpha
-import subprocess
-import sys
 import speech_recognition as sr
 
-name = ["bhoomika", "apoorva", "bhumika"]
+# name = ["bhoomika", "apoorva", "bhumika"]
 Questions = ["What is your name?", "What is your Employee ID", "What is the name of the project you are currently woking on",
              "Whatis the Name your Supervisor", "What is the role you are assigned to"]
 Request = ["Requesting Name", "Requesting Employee ID", "Requesting Project Name",
@@ -31,6 +25,7 @@ project_name = ''
 supervisor = ''
 role = ''
 email = ''
+
 otp = ''
 k_image =''
 engine = pyttsx3.init('sapi5')
@@ -87,7 +82,6 @@ def wishMe():
 
 def StartBot():
     getEmail()
-
     
 
 def UserQuest():
@@ -103,16 +97,18 @@ def UserQuest():
         
             
         UserAnswers.append(query.lower())
+        
         # speak("Got it!")
         # print("Got it")
-    print(UserAnswers)
-    print(DataAnswers)
+    # print(UserAnswers)
+    # print(DataAnswers)
     count=0
     for i in range(len(DataAnswers)):
         if DataAnswers[i].lower() == UserAnswers[i].lower():
             count=count + 1
     if(count/len(DataAnswers)*100 > 60):
         allofit.append(True)
+    recognize_face(email)
 
 
 
@@ -125,43 +121,54 @@ def getEmail():
     print(mail)
     data = {'Email': mail}
     response = requests.post("http://localhost:3000/user/get", json=data)
-    print(response.status_code)
+    # print(response.status_code)
     if (response.status_code == 404):
+        speak("Please try again.")
         getEmail()
     else:
         getUserDetails(mail)
-        recognize_face(mail)
-    # getOTP(mail)
+        
+    
 
-def getOTP(mail):
+def getOTP(email):
     speak("What is the OTP")
     print("Requesting OTP")
     otp1, flag = tackCommand()
+    otp = getOTPdetails(email)
     while (flag == 1):
-        getOTP(mail)
+        getOTP()
     if(otp1!=otp):
+        # print("otp: ",otp,"otp1: ",otp1)
         speak("OTP is incorrect")
-        speak("Refresh and reenter OTP")
+        speak("Refresh and reenter OTP or Try same OTP again")
+        speak("What is the OTP")
         print("Requesting OTP")
         otp1, flag = tackCommand()
+        otp = getOTPdetails(email)
         while (flag == 1):
-            getOTP(mail)
+            getOTP()
     if(otp1==otp):
         speak("OTP Accepted")
-        print("OTP Success!!")        
+        print("OTP Success!!")  
+    else:
+        speak("OTP Incorrect")
+        print("Access denied")  
 
-    
 
-    getUserDetails(mail)
+def getOTPdetails(mail):
+    data = {'Email': mail}
+    response = requests.post("http://localhost:3000/user/get", json=data)
+    otp = response.json()['otp']
+    return otp
 
 
 
 
 def getUserDetails(email):
-    try:
+    
         data = {'Email': email}
         response = requests.post("http://localhost:3000/user/get", json=data)
-        print(response.json()['Employee_Name'])
+        # print(response.json()['Employee_Name'])
         flag=0
         DataAnswers.append(response.json()['Employee_Name'].lower())
         DataAnswers.append(response.json()['Employee_ID'].lower())
@@ -170,12 +177,12 @@ def getUserDetails(email):
         DataAnswers.append(response.json()['Role'].lower())
         k_image = response.json()['image']
         otp = response.json()['otp']
-        print(k_image, DataAnswers)
+        # print(k_image, DataAnswers)
         UserQuest()
         
-    except:
-        speak("Please try again.")
-        getEmail()
+    # except:
+    #     speak("Please try again.")
+    #     getEmail()
 
 
 def quest(i):
@@ -188,17 +195,17 @@ def recognize_face(mail):
     speak("Face recognition in progress......")
     print("Face recognition in progress......")
     body = {
-        "Email": mail
+        "Email": "picture@test.com"
     }
     rec=[]
-    url = "http://192.168.0.104:3000/user/getimages/"
+    url = "http://localhost:3000/user/getimages/"
     response = requests.post(url, json=body)
     k_images = response.json()
     downloaded_obj = requests.get(k_images, headers=headers).content
     with open("known_image.png", "wb") as file:
         file.write(downloaded_obj)
     known_image = face_recognition.load_image_file("known_image.png")
-    for i in range(0,6):
+    for i in range(2,8):
         try:
             unknown_image1 = face_recognition.load_image_file("C:/out/"+str(i)+".bmp")
             known_encoding = face_recognition.face_encodings(known_image)[0]
@@ -211,9 +218,14 @@ def recognize_face(mail):
     for i in rec:
         if i == True:
             c += 1
-    if (c/len(rec)) >= 0.6:
+    if (c/len(rec)) >= 0.3:
         allofit.append(True)
-    getOTP(mail)
+    if len(allofit)==2:
+        getOTP(mail)
+    else:
+        for _ in range(0,5):
+            speak("ACCESS DENIED. ALERTING SECURITY")
+            print("ACCESS DENIED. ALERTING SECURITY")
 
 def getOTP(email):
     speak("What is the OTP")
@@ -221,9 +233,9 @@ def getOTP(email):
     otp1, flag = tackCommand()
     otp = getOTPdetails(email)
     while (flag == 1):
-        getOTP()
+        getOTP(email)
     if(otp1!=otp):
-        print("otp: ",otp,"otp1: ",otp1)
+        # print("otp: ",otp,"otp1: ",otp1)
         speak("OTP is incorrect")
         speak("Refresh and reenter OTP or Try same OTP again")
         speak("What is the OTP")
@@ -236,14 +248,29 @@ def getOTP(email):
         speak("OTP Accepted")
         print("OTP Success!!") 
         allofit.append(True)
+        checkAccess()
     else:
         speak("OTP Incorrect")
      
-
+def checkAccess():
+    print(allofit)
+    ser = serial.Serial("COM5",9600)
+    if len(allofit)== 3:
+        speak("ACCESS GRANTED!!!!")
+        print("ACCESS GRANTED!!!!")
+        time.sleep(2)
+        ser.write(b"H")
+    else:
+        time.sleep(2)
+        ser.write(b"L")
+        for _ in range(0,5):
+            speak("ACCESS DENIED. ALERTING SECURITY")
+            print("ACCESS DENIED. ALERTING SECURITY")   
+    
     
 
 def getOTPdetails(mail):
-    data = {'Email': mail}
+    data = {"Email": "picture@test.com"}
     response = requests.post("http://localhost:3000/user/get", json=data)
     otp = response.json()['otp']
     return otp

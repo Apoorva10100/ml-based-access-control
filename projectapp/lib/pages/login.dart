@@ -16,7 +16,7 @@ class _LoginState extends State<Login> {
   TextEditingController passwordController = TextEditingController();
 
   Future<Map<String, dynamic>?> login(String id, String password) async {
-    final Uri apiUrl = Uri.parse("http://192.168.18.243:3000/login");
+    final Uri apiUrl = Uri.parse("http://192.168.0.104:3000/login");
     try {
       final http.Response response = await http.post(
         apiUrl,
