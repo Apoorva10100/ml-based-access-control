@@ -8,7 +8,7 @@ import requests
 import speech_recognition as sr
 
 # name = ["bhoomika", "apoorva", "bhumika"]
-Questions = ["What is your name?", "What is your Employee ID", "What is the name of the project you are currently woking on",
+Questions = ["What is your name?", "What is your Employee ID", "What is the name of the project you are currently working on",
              "Whatis the Name your Supervisor", "What is the role you are assigned to"]
 Request = ["Requesting Name", "Requesting Employee ID", "Requesting Project Name",
            "Requesting Supervisor Name", "Requesting the assigned Role"]
@@ -94,20 +94,15 @@ def UserQuest():
             query, flag = quest(i)
         while (flag == 1):
             query, flag = quest(i)
-        
-            
         UserAnswers.append(query.lower())
-        
-        # speak("Got it!")
-        # print("Got it")
-    # print(UserAnswers)
-    # print(DataAnswers)
     count=0
     for i in range(len(DataAnswers)):
         if DataAnswers[i].lower() == UserAnswers[i].lower():
             count=count + 1
     if(count/len(DataAnswers)*100 > 60):
         allofit.append(True)
+    else:
+        allofit.append(False)
     recognize_face(email)
 
 
@@ -121,7 +116,6 @@ def getEmail():
     print(mail)
     data = {'Email': mail}
     response = requests.post("http://localhost:3000/user/get", json=data)
-    # print(response.status_code)
     if (response.status_code == 404):
         speak("Please try again.")
         getEmail()
@@ -165,25 +159,14 @@ def getOTPdetails(mail):
 
 
 def getUserDetails(email):
-    
         data = {'Email': email}
         response = requests.post("http://localhost:3000/user/get", json=data)
-        # print(response.json()['Employee_Name'])
-        flag=0
         DataAnswers.append(response.json()['Employee_Name'].lower())
         DataAnswers.append(response.json()['Employee_ID'].lower())
         DataAnswers.append(response.json()['Project_Name'].lower())
         DataAnswers.append(response.json()['Supervisor_Name'].lower())
         DataAnswers.append(response.json()['Role'].lower())
-        k_image = response.json()['image']
-        otp = response.json()['otp']
-        # print(k_image, DataAnswers)
         UserQuest()
-        
-    # except:
-    #     speak("Please try again.")
-    #     getEmail()
-
 
 def quest(i):
     speak(Questions[i])
@@ -205,7 +188,7 @@ def recognize_face(mail):
     with open("known_image.png", "wb") as file:
         file.write(downloaded_obj)
     known_image = face_recognition.load_image_file("known_image.png")
-    for i in range(2,8):
+    for i in range(0,15):
         try:
             unknown_image1 = face_recognition.load_image_file("C:/out/"+str(i)+".bmp")
             known_encoding = face_recognition.face_encodings(known_image)[0]
@@ -218,11 +201,23 @@ def recognize_face(mail):
     for i in rec:
         if i == True:
             c += 1
-    if (c/len(rec)) >= 0.3:
+    if (c/len(rec)) >= 0.6:
         allofit.append(True)
-    if len(allofit)==2:
+    else:
+        allofit.append(False)
+    if len(set(allofit))==1 and False not in set(allofit):
         getOTP(mail)
     else:
+        if allofit[0] == False and allofit[1] == False:
+            speak("CHATBOT VERIFICATION FAILED AND FACE NOT RECOGNIZED!")
+            print("CHATBOT VERIFICATION FAILED AND FACE NOT RECOGNIZED!")
+        else:
+            if allofit[1] == False:
+                speak("FACE NOT RECOGNIZED!")
+                print("\FACE NOT RECOGNIZED!\n")
+            else:
+                speak("CHATBOT VERIFICATION FAILED!")
+                print("CHATBOT VERIFICATION FAILED!")
         for _ in range(0,5):
             speak("ACCESS DENIED. ALERTING SECURITY")
             print("ACCESS DENIED. ALERTING SECURITY")
@@ -243,7 +238,7 @@ def getOTP(email):
         otp1, flag = tackCommand()
         otp = getOTPdetails(email)
         while (flag == 1):
-            getOTP()
+            getOTP(email)
     if(otp1==otp):
         speak("OTP Accepted")
         print("OTP Success!!") 
@@ -251,9 +246,11 @@ def getOTP(email):
         checkAccess()
     else:
         speak("OTP Incorrect")
-     
+        print("OTP Incorrect")
+
+
 def checkAccess():
-    print(allofit)
+    #sssprint(allofit)
     ser = serial.Serial("COM5",9600)
     if len(allofit)== 3:
         speak("ACCESS GRANTED!!!!")
